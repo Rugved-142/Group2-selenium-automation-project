@@ -48,13 +48,31 @@ public class ExcelReader {
         return getSheetData("AcademicCalendar").get(0);
     }
 
+    /**
+     * Returns all rows from the "CanvasEvents" sheet.
+     * Columns: title, date, time, end_time, location, calendar
+     * Scenario 2 expects exactly 2 rows.
+     */
+    public static List<Map<String, String>> getCanvasEvents() {
+        return getSheetData("CanvasEvents");
+    }
+
     private static String getCellValue(Cell cell) {
         if (cell == null) return "";
         switch (cell.getCellType()) {
-            case STRING:  return cell.getStringCellValue().trim();
-            case NUMERIC: return String.valueOf((long) cell.getNumericCellValue());
-            case BOOLEAN: return String.valueOf(cell.getBooleanCellValue());
-            default:      return "";
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                org.apache.poi.ss.usermodel.DataFormatter formatter =
+                        new org.apache.poi.ss.usermodel.DataFormatter();
+                String formatted = formatter.formatCellValue(cell).trim();
+                if (!formatted.isEmpty()) return formatted;
+                // Fallback to long cast for plain numbers
+                return String.valueOf((long) cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            default:
+                return "";
         }
     }
 }
