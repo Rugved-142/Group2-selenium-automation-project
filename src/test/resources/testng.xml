@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="INFO6255 Selenium Test Suite" verbose="1">
 
-    <test name="Scenario 5 - Academic Calendar">
+<suite name="INFO6255 Selenium Suite" verbose="1">
+
+    <test name="Scenario4 Negative Dataset">
+        <classes>
+            <class name="tests.Scenario4Test"/>
+        </classes>
+    </test>
+
+    <test name="Scenario5 Academic Calendar">
         <classes>
             <class name="tests.Scenario5Test"/>
         </classes>
