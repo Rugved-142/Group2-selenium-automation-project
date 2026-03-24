@@ -101,7 +101,7 @@ public class Scenario1Test extends BaseTest {
             System.out.println("Current URL: " + loginURL);
             if (loginURL.contains("login") || loginURL.contains("microsoft") ||
                     loginURL.contains("microsoftonline") || loginURL.contains("auth")) {
-                neuLogin(driver, wait, creds);
+                transcriptLogin(driver, wait, creds);
             }
 
                 
@@ -126,6 +126,75 @@ public class Scenario1Test extends BaseTest {
                     By.xpath("//input[@type='submit'] | //button[@type='submit']")
             ));
             nextBtn.click();
+            Thread.sleep(2000);
+
+            WebElement passwordField = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//input[@type='password' or @name='passwd']")
+            ));
+            passwordField.clear();
+            passwordField.sendKeys(creds.get("password"));
+
+            WebElement signInBtn = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//input[@type='submit'] | //button[@type='submit']")
+            ));
+            signInBtn.click();
+
+            System.out.println("\n=====================================================");
+            System.out.println("      DUO 2FA: Please approve push on your phone.");
+            System.out.println("      Waiting for browser to redirect...");
+            System.out.println("=====================================================\n");
+
+            // Handle Duo "Is this your device?" popup
+            try {
+                WebElement myDeviceBtn = new WebDriverWait(driver, Duration.ofSeconds(60))
+                        .until(ExpectedConditions.elementToBeClickable(
+                                By.xpath("//button[contains(text(),'Yes, this is my device')] | " +
+                                        "//a[contains(text(),'Yes, this is my device')]")
+                        ));
+                myDeviceBtn.click();
+                System.out.println("Clicked 'Yes, this is my device'");
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                System.out.println("No 'Is this your device' popup");
+            }
+
+            // Handle "Stay signed in?" popup
+            try {
+                WebElement staySignedIn = new WebDriverWait(driver, Duration.ofSeconds(15))
+                        .until(ExpectedConditions.elementToBeClickable(
+                                By.xpath("//input[@value='Yes'] | //button[contains(text(),'Yes')]")
+                        ));
+                staySignedIn.click();
+                System.out.println("Clicked 'Yes' on Stay signed in");
+                Thread.sleep(2000);
+            } catch (Exception e) {
+                System.out.println("No 'Stay signed in' popup");
+            }
+
+            // Wait for redirect back to student hub
+            new WebDriverWait(driver, Duration.ofSeconds(60))
+                    .until(ExpectedConditions.urlContains("northeastern.edu"));
+            Thread.sleep(3000);
+            System.out.println("Redirected to: " + driver.getCurrentUrl());
+
+        } catch (Exception e) {
+            System.out.println("Login skipped or already logged in: " + e.getMessage());
+        }
+    }
+
+    // ── Transcript Login Helper ──────────────────────────────────────────────────────
+    private void transcriptLogin(WebDriver driver, WebDriverWait wait, Map<String, String> creds) {
+        try {
+            WebElement usernameField = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//input[@type='email' or @name='loginfmt' or @id='username']")
+            ));
+            usernameField.clear();
+            String username = creds.get("username");
+            if (username != null && username.contains("@")) {
+                username = username.substring(0, username.indexOf("@"));
+            }
+            usernameField.sendKeys(username);
+
             Thread.sleep(2000);
 
             WebElement passwordField = wait.until(ExpectedConditions.presenceOfElementLocated(
