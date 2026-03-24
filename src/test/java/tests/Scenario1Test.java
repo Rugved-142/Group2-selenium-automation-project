@@ -34,7 +34,7 @@ public class Scenario1Test extends BaseTest {
         try {
             // ── Step a: Navigate to NEU Student Hub ──────────────────────────
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "a_navigate_student_hub", "before");
-            driver.get("https://student.me.northeastern.edu/");
+            driver.get(creds.get("url"));
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "a_navigate_student_hub", "after");
             extentTest.log(Status.PASS, "Step a: Navigated to Student Hub");
