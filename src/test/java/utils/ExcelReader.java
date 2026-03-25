@@ -44,30 +44,10 @@ public class ExcelReader {
                         continue;
                     }
 
-                    String key = headerCell.getStringCellValue();
+                    String key = headerCell.getStringCellValue().trim();
 
                     Cell cell = row.getCell(j);
-                    String value = "";
-
-                    if (cell != null) {
-
-                        switch (cell.getCellType()) {
-                            case STRING:
-                                value = cell.getStringCellValue();
-                                break;
-                            case NUMERIC:
-                                value = String.valueOf(cell.getNumericCellValue());
-                                break;
-                            case BOOLEAN:
-                                value = String.valueOf(cell.getBooleanCellValue());
-                                break;
-                            case FORMULA:
-                                value = cell.getCellFormula();
-                                break;
-                            default:
-                                value = "";
-                        }
-                    }
+                    String value = getCellValue(cell);
 
                     dataMap.put(key, value);
                 }
@@ -84,6 +64,27 @@ public class ExcelReader {
         return dataList;
     }
 
+    private static String getCellValue(Cell cell) {
+        if (cell == null)
+            return "";
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                DataFormatter formatter = new DataFormatter();
+                String formatted = formatter.formatCellValue(cell).trim();
+                if (!formatted.isEmpty())
+                    return formatted;
+                return String.valueOf((long) cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return "";
+        }
+    }
+
     public static Map<String, String> getLoginCredentials() {
         return getSheetData("Login").get(0);
     }
@@ -94,5 +95,9 @@ public class ExcelReader {
 
     public static Map<String, String> getDatasetInfo() {
         return getSheetData("Dataset").get(0);
+    }
+
+    public static List<Map<String, String>> getCanvasEvents() {
+        return getSheetData("CanvasEvents");
     }
 }
