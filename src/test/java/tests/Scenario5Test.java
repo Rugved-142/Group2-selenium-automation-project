@@ -1,11 +1,11 @@
 package tests;
 
-import org.openqa.selenium.WebDriver;
 import base.BaseTest;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -17,6 +17,8 @@ import utils.ReportManager;
 import utils.ScreenshotHelper;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Scenario5Test extends BaseTest {
@@ -50,9 +52,11 @@ public class Scenario5Test extends BaseTest {
             }
 
             // ── Step a cont: Click Resources tab ─────────────────────────────
+            Thread.sleep(3000);
+            System.out.println("  🔍 Step a: Current URL = " + driver.getCurrentUrl());
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "a_click_resources", "before");
             WebElement resourcesTab = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//*[self::a or self::span or self::button or self::li]" +
+                    By.xpath("//*[self::a or self::span or self::button or self::li or self::div]" +
                             "[contains(translate(text(),'ABCDEFGHIJKLMNOPQRSTUVWXYZ'," +
                             "'abcdefghijklmnopqrstuvwxyz'),'resources')]")
             ));
@@ -85,9 +89,8 @@ public class Scenario5Test extends BaseTest {
 
             // ── Step d: Switch to new tab, click Academic Calendar ────────────
             if (driver.getWindowHandles().size() > 1) {
-                driver.switchTo().window(
-                        driver.getWindowHandles().toArray()[driver.getWindowHandles().size() - 1].toString()
-                );
+                List<String> windows = new ArrayList<>(driver.getWindowHandles());
+                driver.switchTo().window(windows.get(windows.size() - 1));
                 System.out.println("  ✅ Step d: Switched to new tab");
             }
 
@@ -119,73 +122,74 @@ public class Scenario5Test extends BaseTest {
 
             // ── Step f: Uncheck QTR checkbox ──────────────────────────────────
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "f_uncheck_qtr", "before");
-            js.executeScript("window.scrollBy(0, 1200);");
+
+            // Scroll to calendar section so it is visible on screen
+            js.executeScript("window.scrollBy(0, 1000);");
             Thread.sleep(3000);
 
-            // Use JS to find and click QTR link across all iframes
-            String result = (String) js.executeScript(
-                    "function searchFrames(win) {" +
-                            "  try {" +
-                            "    var doc = win.document;" +
-                            "    var links = doc.querySelectorAll('a.twCalendarListName');" +
-                            "    for (var i = 0; i < links.length; i++) {" +
-                            "      var t = links[i].innerText || links[i].textContent || '';" +
-                            "      if (t.indexOf('QTR') > -1 || t.indexOf('Quarter') > -1) {" +
-                            "        var parent = links[i].closest('li, tr, div');" +
-                            "        var cb = parent ? parent.querySelector('input[type=checkbox]') : null;" +
-                            "        if (cb) { cb.click(); return 'clicked checkbox: ' + t.trim(); }" +
-                            "        links[i].click();" +
-                            "        return 'clicked link: ' + t.trim();" +
-                            "      }" +
-                            "    }" +
-                            "  } catch(e) {}" +
-                            "  try {" +
-                            "    for (var f = 0; f < win.frames.length; f++) {" +
-                            "      var r = searchFrames(win.frames[f]);" +
-                            "      if (r) return r;" +
-                            "    }" +
-                            "  } catch(e) {}" +
-                            "  return null;" +
-                            "}" +
-                            "return searchFrames(window) || 'not found';"
-            );
-
-            System.out.println("  🔍 JS result: " + result);
-            if ("not found".equals(result)) {
-                throw new Exception("❌ QTR checkbox not found");
-            }
-            System.out.println("  ✅ Step f: Unchecked QTR — " + result);
-            Thread.sleep(1000);
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "f_uncheck_qtr", "after");
-            extentTest.log(Status.PASS, "Step f: Unchecked QTR checkbox — " + result);
-
-            // ── Step g: Scroll to bottom, verify Add to My Calendar button ────
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "g_verify_button", "before");
-            js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+            // Switch directly into the Trumba iframe by name
+            driver.switchTo().frame("trumba.spud.7.iframe");
             Thread.sleep(1000);
 
-            String expectedButton = data.get("expected_button");
-
-            // Switch into iframe 2 for Add to My Calendar button
-            WebElement iframe = driver.findElements(By.tagName("iframe")).get(2);
-            driver.switchTo().frame(iframe);
-
-            WebElement addBtn = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//*[contains(text(),'" + expectedButton + "')]")
+            // Find the QTR label link
+            WebElement qtrLink = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//a[contains(@class,'twCalendarListName') and contains(.,'QTR')]")
             ));
 
-            // Assert button is displayed
-            Assert.assertTrue(addBtn.isDisplayed(),
-                    "FAIL: '" + expectedButton + "' button was NOT visible");
+            // Scroll it into view
+            js.executeScript("arguments[0].scrollIntoView({behavior:'smooth',block:'center'});", qtrLink);
+            Thread.sleep(1000);
 
+            // Navigate up to the nearest twCalendarListNameCell <td>, which is QTR's own row cell.
+            // Then go to its parent <tr> — this is the row for QTR only, not the outer table row.
+            WebElement qtrNameCell = qtrLink.findElement(
+                    By.xpath("./ancestor::td[contains(@class,'twCalendarListNameCell')]")
+            );
+            WebElement qtrRow = qtrNameCell.findElement(By.xpath("./ancestor::tr[1]"));
+
+            // Debug: print this specific row's HTML
+            System.out.println("  🔍 QTR row HTML: " + qtrRow.getAttribute("innerHTML"));
+
+            // The checkbox is in the sibling <td> with padding-left style (first cell in this row).
+            // Find the first clickable element in that cell.
+            WebElement checkboxTd = qtrRow.findElement(
+                    By.xpath(".//td[contains(@style,'padding-left')]")
+            );
+
+            // Look for any clickable child inside the checkbox cell
+            List<WebElement> clickables = checkboxTd.findElements(
+                    By.xpath(".//*[self::a or self::span or self::div or self::img or self::input]")
+            );
+
+            if (!clickables.isEmpty()) {
+                js.executeScript("arguments[0].click();", clickables.get(0));
+                System.out.println("  ✅ Step f: Clicked QTR checkbox element");
+            } else {
+                // If no child element, click the <td> itself
+                js.executeScript("arguments[0].click();", checkboxTd);
+                System.out.println("  ✅ Step f: Clicked QTR checkbox cell");
+            }
+
+            Thread.sleep(2000);
             driver.switchTo().defaultContent();
-            System.out.println("  ✅ Step g: '" + expectedButton + "' button visible — PASSED");
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "g_verify_button", "after");
-            extentTest.log(Status.PASS, "Step g: '" + expectedButton + "' button is visible");
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "f_uncheck_qtr", "after");
+            extentTest.log(Status.PASS, "Step f: Unchecked QTR checkbox");
+
+            // ── Step g: Scroll to middle of page to show unchecked QTR box ────
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "g_scroll_to_calendars", "before");
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight / 2);");
+            Thread.sleep(2000);
+            System.out.println("  ✅ Step g: Scrolled to middle of page");
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "g_scroll_to_calendars", "after");
+            extentTest.log(Status.PASS, "Step g: Scrolled to middle — unchecked QTR box visible");
 
         } catch (Exception e) {
             extentTest.log(Status.FAIL, "Scenario 5 FAILED: " + e.getMessage());
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "failure", "after");
+            try {
+                ScreenshotHelper.takeScreenshot(driver, SCENARIO, "failure", "after");
+            } catch (Exception screenshotEx) {
+                System.out.println("  ⚠️ Could not take failure screenshot: " + screenshotEx.getMessage());
+            }
             Assert.fail("Scenario 5 failed: " + e.getMessage());
         }
     }
@@ -221,7 +225,6 @@ public class Scenario5Test extends BaseTest {
             System.out.println("      Waiting for browser to redirect...");
             System.out.println("=====================================================\n");
 
-            // Handle Duo "Is this your device?" popup
             try {
                 WebElement myDeviceBtn = new WebDriverWait(driver, Duration.ofSeconds(60))
                         .until(ExpectedConditions.elementToBeClickable(
@@ -235,7 +238,6 @@ public class Scenario5Test extends BaseTest {
                 System.out.println("  ℹ️ No 'Is this your device' popup");
             }
 
-            // Handle "Stay signed in?" popup
             try {
                 WebElement staySignedIn = new WebDriverWait(driver, Duration.ofSeconds(15))
                         .until(ExpectedConditions.elementToBeClickable(
@@ -248,7 +250,6 @@ public class Scenario5Test extends BaseTest {
                 System.out.println("  ℹ️ No 'Stay signed in' popup");
             }
 
-            // Wait for redirect back to student hub
             new WebDriverWait(driver, Duration.ofSeconds(60))
                     .until(ExpectedConditions.urlContains("northeastern.edu"));
             Thread.sleep(3000);

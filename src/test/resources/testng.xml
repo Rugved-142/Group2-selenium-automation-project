@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="INFO6255 Selenium Test Suite" verbose="1">
+
+<suite name="INFO6255 Selenium Suite" verbose="1">
 
     <test name="Scenario 1 - Download Transcript">
         <classes>
@@ -17,6 +18,12 @@
     <test name="Scenario 3 - Library Booking">
         <classes>
             <class name="tests.Scenario3Test"/>
+        </classes>
+    </test>
+
+    <test name="Scenario 4 - Dataset Negative">
+        <classes>
+            <class name="tests.Scenario4Test"/>
         </classes>
     </test>
 
