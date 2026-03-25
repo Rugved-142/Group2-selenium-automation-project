@@ -30,59 +30,33 @@ public class ExcelReader {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 
                 Row row = sheet.getRow(i);
-
-                if (row == null) {
+                if (row == null)
                     continue;
-                }
 
                 Map<String, String> dataMap = new HashMap<>();
 
                 for (int j = 0; j < headerRow.getLastCellNum(); j++) {
 
-                    Cell headerCell = headerRow.getCell(j);
-                    if (headerCell == null) {
-                        continue;
-                    }
-
-                    String key = headerCell.getStringCellValue().trim();
-
+                    String key = headerRow.getCell(j).getStringCellValue().trim();
                     Cell cell = row.getCell(j);
-                    String value = getCellValue(cell);
+
+                    String value = "";
+                    if (cell != null) {
+                        DataFormatter formatter = new DataFormatter();
+                        value = formatter.formatCellValue(cell).trim();
+                    }
 
                     dataMap.put(key, value);
                 }
 
-                if (!dataMap.isEmpty()) {
-                    dataList.add(dataMap);
-                }
+                dataList.add(dataMap);
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to read Excel: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to read Excel", e);
         }
 
         return dataList;
-    }
-
-    private static String getCellValue(Cell cell) {
-        if (cell == null)
-            return "";
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue().trim();
-            case NUMERIC:
-                DataFormatter formatter = new DataFormatter();
-                String formatted = formatter.formatCellValue(cell).trim();
-                if (!formatted.isEmpty())
-                    return formatted;
-                return String.valueOf((long) cell.getNumericCellValue());
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
-            default:
-                return "";
-        }
     }
 
     public static Map<String, String> getLoginCredentials() {
