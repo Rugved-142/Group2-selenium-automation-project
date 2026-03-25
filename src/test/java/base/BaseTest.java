@@ -14,13 +14,14 @@ public class BaseTest {
 
     protected WebDriver driver;
 
+    // BaseTest.java — replace setUp()
     @BeforeMethod
     public void setUp() {
-        WebDriverManager.chromedriver().setup();
-
+        // Selenium 4.15 manages ChromeDriver automatically — no WebDriverManager needed
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-maximized");
         options.addArguments("--disable-notifications");
+        options.addArguments("--remote-allow-origins=*");
         options.setExperimentalOption("excludeSwitches", Arrays.asList("enable-logging"));
 
         driver = new ChromeDriver(options);
