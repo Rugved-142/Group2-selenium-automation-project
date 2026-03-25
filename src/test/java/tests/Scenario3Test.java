@@ -32,7 +32,7 @@ public class Scenario3Test extends BaseTest {
         // Read URL (and optional scenario name) from Excel to preserve original data-driven behavior
         Map<String, String> creds = ExcelReader.getLoginCredentials();   
         
-        String libraryUrl = creds.get("url");
+        String libraryUrl = creds.get("libraryURL");
 
         try {
             // Open Library URL

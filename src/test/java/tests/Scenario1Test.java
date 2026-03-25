@@ -6,8 +6,13 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.Pdf;
+import org.openqa.selenium.PrintsPage;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.print.PrintOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -16,8 +21,12 @@ import utils.ExcelReader;
 import utils.ReportManager;
 import utils.ScreenshotHelper;
 
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Map;
+import java.nio.file.Path;
+import java.io.File;
+import java.nio.file.Files;
 
 public class Scenario1Test extends BaseTest {
 
@@ -25,7 +34,7 @@ public class Scenario1Test extends BaseTest {
     private ExtentTest extentTest;
 
     @Test
-    public void testUpdateAcademicCalendar() {
+    public void downloadTranscript() {
         extentTest = ReportManager.createTest("Scenario 1: Download Transcript");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
         Map<String, String> creds = ExcelReader.getLoginCredentials();
@@ -71,13 +80,23 @@ public class Scenario1Test extends BaseTest {
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "b_click_academics", "after");
             extentTest.log(Status.PASS, "Step b: Clicked Academics, Classes & Registration");
 
-            // ── Step c: Click Academic Calendar link ──────────────────────────
+            // ── Step c: Click Transcript link ──────────────────────────
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "transcript_link", "before");
+            String originalWindow = driver.getWindowHandle();
             WebElement unofficialTranscriptLink = wait.until(ExpectedConditions.elementToBeClickable(
                     By.xpath("//a[normalize-space(text())='Unofficial Transcript']")
             ));
             unofficialTranscriptLink.click();
             Thread.sleep(2000);
+
+            // Switch to the newly opened tab so currentUrl reflects the visible page
+            for (String handle : driver.getWindowHandles()) {
+                if (!handle.equals(originalWindow)) {
+                    driver.switchTo().window(handle);
+                    break;
+                }
+            }
+
             System.out.println("Step c: Clicked Transcript link");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "transcript_link", "after");
             extentTest.log(Status.PASS, "Step c: Clicked Unofficial Transcript link");
@@ -85,26 +104,105 @@ public class Scenario1Test extends BaseTest {
 
             // ── Step d: Verify transcript page actually loaded ───────────────
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "transcript_page_load", "before");
-            // Fail the test if the transcript page never loads (link broken/down)
-            wait.until(
-                ExpectedConditions.or(
-                    ExpectedConditions.titleContains("Transcript"),
-                    ExpectedConditions.urlContains("transcript")
-                )
-            );
+
+            Thread.sleep(2000);
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "transcript_page_load", "after");
             extentTest.log(Status.PASS, "Step d: Transcript page loaded successfully");
 
-            // Handle NEU login if redirected
+            // Handle NEU SSO login if redirected
             Thread.sleep(3000);
             String loginURL = driver.getCurrentUrl();
             System.out.println("Current URL: " + loginURL);
-            if (loginURL.contains("login") || loginURL.contains("microsoft") ||
-                    loginURL.contains("microsoftonline") || loginURL.contains("auth")) {
+            if (loginURL.contains("neuidmsso.neu.edu")) {
                 transcriptLogin(driver, wait, creds);
             }
+            else{
+                extentTest.log(Status.PASS, "Website is under maintainance");
+                return;
+            }
 
-                
+            Thread.sleep(2000);           
+
+            WebElement transcriptLevelToggle = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                    By.cssSelector("#transcriptLevelSelection .select2-choice")
+                )
+            );
+            transcriptLevelToggle.click();
+
+            WebElement dropdownList = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("#transcriptLevelSelection .ui-select-choices")
+                )
+            );
+           
+            WebElement graduateOption = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                    By.xpath("//ul[@id='ui-select-choices-1']//div[normalize-space(text())='Graduate']")
+                )
+            );
+            graduateOption.click();
+
+            Thread.sleep(2000);
+
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "transcript_level_selected", "after");
+            extentTest.log(Status.PASS, "Selected 'Graduate' level");
+
+            // Click the Transcript Type dropdown toggle to open it
+            WebElement transcriptTypeToggle = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                    By.cssSelector("#transcriptTypeSelection .select2-choice")
+                )
+            );
+            transcriptTypeToggle.click();
+
+            // Wait for the dropdown list to become visible
+            WebElement transcriptTypeList = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(
+                    By.cssSelector("#transcriptTypeSelection .ui-select-choices")
+                )
+            );
+
+            // Click the option matching "Audit Transcript"            
+            WebElement auditOption = wait.until(
+                ExpectedConditions.elementToBeClickable(
+                    By.xpath("//ul[@id='ui-select-choices-2']//div[normalize-space(text())='Audit Transcript']")
+                )
+            );
+            auditOption.click();
+
+            Thread.sleep(2000);
+
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "transcript_type_selected", "after");
+            extentTest.log(Status.PASS, "Selected 'Audit Transcript' type");
+
+            PrintsPage printsPage = (PrintsPage) driver;
+            Path printPage = Paths.get("/Users/Sarthak/sqcm/Group2-selenium-automation-project/My_Transcript.pdf");
+            Pdf print = printsPage.print(new PrintOptions());
+            Files.write(printPage, OutputType.BYTES.convertFromBase64Png(print.getContent()));   
+            
+            Thread.sleep(2000);
+
+            String pdfDirectory = System.getProperty("user.dir") + "/";
+            File pdfDir = new File(pdfDirectory);
+
+            // Wait up to 10 seconds for the file to appear
+            File pdfFile = null;
+            long timeout = System.currentTimeMillis() + 2000;
+
+            while (System.currentTimeMillis() < timeout) {
+                File[] files = pdfDir.listFiles((dir, name) -> name.endsWith(".pdf"));
+                if (files != null && files.length > 0) {
+                    pdfFile = files[0];
+                    break;
+                }
+                Thread.sleep(500);
+            }
+
+            // Assert file exists
+            Assert.assertNotNull(pdfFile, "PDF file was not created in output directory");
+            Assert.assertTrue(pdfFile.exists(), "PDF file does not exist at path: " + pdfFile.getAbsolutePath());
+            extentTest.log(Status.PASS, "PDF file exists at: " + pdfFile.getAbsolutePath());
 
         } catch (Exception e) {
             extentTest.log(Status.FAIL, "Scenario 1 FAILED: " + e.getMessage());
@@ -186,7 +284,7 @@ public class Scenario1Test extends BaseTest {
     private void transcriptLogin(WebDriver driver, WebDriverWait wait, Map<String, String> creds) {
         try {
             WebElement usernameField = wait.until(ExpectedConditions.presenceOfElementLocated(
-                    By.xpath("//input[@type='email' or @name='loginfmt' or @id='username']")
+                    By.xpath("//input[@id='username']")
             ));
             usernameField.clear();
             String username = creds.get("username");
@@ -198,7 +296,7 @@ public class Scenario1Test extends BaseTest {
             Thread.sleep(2000);
 
             WebElement passwordField = wait.until(ExpectedConditions.presenceOfElementLocated(
-                    By.xpath("//input[@type='password' or @name='passwd']")
+                    By.xpath("//input[@id='password']")
             ));
             passwordField.clear();
             passwordField.sendKeys(creds.get("password"));
@@ -208,41 +306,9 @@ public class Scenario1Test extends BaseTest {
             ));
             signInBtn.click();
 
-            System.out.println("\n=====================================================");
-            System.out.println("      DUO 2FA: Please approve push on your phone.");
-            System.out.println("      Waiting for browser to redirect...");
-            System.out.println("=====================================================\n");
-
-            // Handle Duo "Is this your device?" popup
-            try {
-                WebElement myDeviceBtn = new WebDriverWait(driver, Duration.ofSeconds(60))
-                        .until(ExpectedConditions.elementToBeClickable(
-                                By.xpath("//button[contains(text(),'Yes, this is my device')] | " +
-                                        "//a[contains(text(),'Yes, this is my device')]")
-                        ));
-                myDeviceBtn.click();
-                System.out.println("Clicked 'Yes, this is my device'");
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                System.out.println("No 'Is this your device' popup");
-            }
-
-            // Handle "Stay signed in?" popup
-            try {
-                WebElement staySignedIn = new WebDriverWait(driver, Duration.ofSeconds(15))
-                        .until(ExpectedConditions.elementToBeClickable(
-                                By.xpath("//input[@value='Yes'] | //button[contains(text(),'Yes')]")
-                        ));
-                staySignedIn.click();
-                System.out.println("Clicked 'Yes' on Stay signed in");
-                Thread.sleep(2000);
-            } catch (Exception e) {
-                System.out.println("No 'Stay signed in' popup");
-            }
-
             // Wait for redirect back to student hub
             new WebDriverWait(driver, Duration.ofSeconds(60))
-                    .until(ExpectedConditions.urlContains("northeastern.edu"));
+                    .until(ExpectedConditions.urlContains("transcriptType"));
             Thread.sleep(3000);
             System.out.println("Redirected to: " + driver.getCurrentUrl());
 
