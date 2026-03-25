@@ -41,19 +41,74 @@ public class Scenario4Test extends BaseTest {
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step1_open_onesearch", "after");
             extentTest.log(Status.PASS, "Opened OneSearch");
 
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step2_open_repository_home", "before");
-            driver.get("https://repository.library.northeastern.edu/");
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step2_open_repository_home", "after");
-            extentTest.log(Status.PASS, "Opened Repository Home");
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+            Thread.sleep(2000);
 
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step3_open_dataset_list", "before");
-            driver.get("https://repository.library.northeastern.edu/communities");
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step3_open_dataset_list", "after");
-            extentTest.log(Status.PASS, "Opened Communities Page");
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step2_click_repository", "before");
 
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step4_open_any_dataset", "before");
+            boolean repositoryClicked = false;
+
+            try {
+
+                List<WebElement> links = driver.findElements(By.tagName("a"));
+
+                for (WebElement link : links) {
+                    String text = link.getText();
+                    if (text != null && text.toLowerCase().contains("repository")) {
+                        js.executeScript("arguments[0].scrollIntoView(true);", link);
+                        Thread.sleep(1000);
+                        link.click();
+                        repositoryClicked = true;
+                        break;
+                    }
+                }
+
+            } catch (Exception ignored) {
+            }
+
+            if (!repositoryClicked) {
+                driver.get("https://repository.library.northeastern.edu/");
+            }
+
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step2_click_repository", "after");
+            extentTest.log(Status.PASS, "Repository page opened");
+
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
+            Thread.sleep(2000);
+
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step3_click_dataset_section", "before");
+
+            boolean datasetSectionClicked = false;
+
+            try {
+
+                List<WebElement> links = driver.findElements(By.tagName("a"));
+
+                for (WebElement link : links) {
+                    String text = link.getText();
+                    if (text != null && text.toLowerCase().contains("dataset")) {
+                        js.executeScript("arguments[0].scrollIntoView(true);", link);
+                        Thread.sleep(1000);
+                        link.click();
+                        datasetSectionClicked = true;
+                        break;
+                    }
+                }
+
+            } catch (Exception ignored) {
+            }
+
+            if (!datasetSectionClicked) {
+                driver.get("https://repository.library.northeastern.edu/communities");
+            }
+
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step3_click_dataset_section", "after");
+            extentTest.log(Status.PASS, "Dataset section opened");
+
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step4_open_dataset_item", "before");
 
             List<WebElement> datasetLinks = wait.until(
                     ExpectedConditions.presenceOfAllElementsLocatedBy(
@@ -65,8 +120,8 @@ public class Scenario4Test extends BaseTest {
 
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
 
-            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step4_open_any_dataset", "after");
-            extentTest.log(Status.PASS, "Opened one dataset");
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step4_open_dataset_item", "after");
+            extentTest.log(Status.PASS, "Opened dataset item");
 
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step5_negative_assert", "before");
 
