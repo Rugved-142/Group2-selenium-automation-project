@@ -3,19 +3,31 @@
 
 <suite name="INFO6255 Selenium Suite" verbose="1">
 
-    <test name="Scenario 2">
+    <test name="Scenario 1 - Download Transcript">
+        <classes>
+            <class name="tests.Scenario1Test"/>
+        </classes>
+    </test>
+
+    <test name="Scenario 2 - Canvas Calendar Events">
         <classes>
             <class name="tests.Scenario2Test"/>
         </classes>
     </test>
 
-    <test name="Scenario 4 Negative">
+    <test name="Scenario 3 - Library Booking">
+        <classes>
+            <class name="tests.Scenario3Test"/>
+        </classes>
+    </test>
+
+    <test name="Scenario 4 - Dataset Negative">
         <classes>
             <class name="tests.Scenario4Test"/>
         </classes>
     </test>
 
-    <test name="Scenario 5">
+    <test name="Scenario 5 - Academic Calendar">
         <classes>
             <class name="tests.Scenario5Test"/>
         </classes>
