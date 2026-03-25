@@ -1,43 +1,88 @@
 package utils;
 
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ExcelReader {
 
-    private static final String EXCEL_PATH = "src/test/resources/test_data.xlsx";
+    private static final String FILE_PATH = "src/test/resources/test_data.xlsx";
 
-    public static List<Map<String, String>> getSheetData(String sheetName) {
-        List<Map<String, String>> data = new ArrayList<>();
-        try (FileInputStream fis = new FileInputStream(EXCEL_PATH);
-             Workbook wb = new XSSFWorkbook(fis)) {
+    private static List<Map<String, String>> getSheetData(String sheetName) {
 
-            Sheet sheet = wb.getSheet(sheetName);
+        List<Map<String, String>> dataList = new ArrayList<>();
+
+        try (FileInputStream fis = new FileInputStream(FILE_PATH);
+                Workbook workbook = WorkbookFactory.create(fis)) {
+
+            Sheet sheet = workbook.getSheet(sheetName);
+
+            if (sheet == null) {
+                throw new RuntimeException("Sheet not found: " + sheetName);
+            }
+
             Row headerRow = sheet.getRow(0);
-            int colCount = headerRow.getLastCellNum();
+
+            if (headerRow == null) {
+                throw new RuntimeException("Header row missing in sheet: " + sheetName);
+            }
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+
                 Row row = sheet.getRow(i);
-                if (row == null) continue;
-                Map<String, String> rowMap = new HashMap<>();
-                for (int j = 0; j < colCount; j++) {
-                    String key = getCellValue(headerRow.getCell(j));
-                    String val = getCellValue(row.getCell(j));
-                    rowMap.put(key, val);
+
+                if (row == null) {
+                    continue;
                 }
-                data.add(rowMap);
+
+                Map<String, String> dataMap = new HashMap<>();
+
+                for (int j = 0; j < headerRow.getLastCellNum(); j++) {
+
+                    Cell headerCell = headerRow.getCell(j);
+                    if (headerCell == null) {
+                        continue;
+                    }
+
+                    String key = headerCell.getStringCellValue().trim();
+
+                    Cell cell = row.getCell(j);
+                    String value = getCellValue(cell);
+
+                    dataMap.put(key, value);
+                }
+
+                if (!dataMap.isEmpty()) {
+                    dataList.add(dataMap);
+                }
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read Excel: " + e.getMessage());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read Excel: " + e.getMessage(), e);
         }
-        return data;
+
+        return dataList;
+    }
+
+    private static String getCellValue(Cell cell) {
+        if (cell == null)
+            return "";
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                DataFormatter formatter = new DataFormatter();
+                String formatted = formatter.formatCellValue(cell).trim();
+                if (!formatted.isEmpty())
+                    return formatted;
+                return String.valueOf((long) cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            default:
+                return "";
+        }
     }
 
     public static Map<String, String> getLoginCredentials() {
@@ -48,31 +93,11 @@ public class ExcelReader {
         return getSheetData("AcademicCalendar").get(0);
     }
 
-    /**
-     * Returns all rows from the "CanvasEvents" sheet.
-     * Columns: title, date, time, end_time, location, calendar
-     * Scenario 2 expects exactly 2 rows.
-     */
-    public static List<Map<String, String>> getCanvasEvents() {
-        return getSheetData("CanvasEvents");
+    public static Map<String, String> getDatasetInfo() {
+        return getSheetData("Dataset").get(0);
     }
 
-    private static String getCellValue(Cell cell) {
-        if (cell == null) return "";
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue().trim();
-            case NUMERIC:
-                org.apache.poi.ss.usermodel.DataFormatter formatter =
-                        new org.apache.poi.ss.usermodel.DataFormatter();
-                String formatted = formatter.formatCellValue(cell).trim();
-                if (!formatted.isEmpty()) return formatted;
-                // Fallback to long cast for plain numbers
-                return String.valueOf((long) cell.getNumericCellValue());
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            default:
-                return "";
-        }
+    public static List<Map<String, String>> getCanvasEvents() {
+        return getSheetData("CanvasEvents");
     }
 }
