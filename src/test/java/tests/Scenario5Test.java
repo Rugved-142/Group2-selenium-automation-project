@@ -183,6 +183,21 @@ public class Scenario5Test extends BaseTest {
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "g_scroll_to_calendars", "after");
             extentTest.log(Status.PASS, "Step g: Scrolled to middle — unchecked QTR box visible");
 
+            // ── Step h: Scroll to bottom and assert ──────────────────────────
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "h_scroll_bottom", "before");
+            js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+            Thread.sleep(2000);
+            System.out.println("  ✅ Step h: Scrolled to bottom of page");
+            ScreenshotHelper.takeScreenshot(driver, SCENARIO, "h_scroll_bottom", "after");
+            extentTest.log(Status.PASS, "Step h: Scrolled to bottom of page");
+
+            // Final assertion — verify we're still on the Academic Calendar page
+            Assert.assertTrue(
+                    driver.getCurrentUrl().contains("academic-calendar"),
+                    "Should be on the Academic Calendar page after all steps"
+            );
+            extentTest.log(Status.PASS, "Final assertion passed: On Academic Calendar page");
+
         } catch (Exception e) {
             extentTest.log(Status.FAIL, "Scenario 5 FAILED: " + e.getMessage());
             try {
