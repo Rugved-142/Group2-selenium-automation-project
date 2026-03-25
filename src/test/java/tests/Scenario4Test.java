@@ -48,7 +48,7 @@ public class Scenario4Test extends BaseTest {
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step2_click_repository", "before");
 
             boolean repositoryClicked = false;
-
+            String originalWindow = driver.getWindowHandle();
             try {
 
                 List<WebElement> links = driver.findElements(By.tagName("a"));
@@ -70,10 +70,18 @@ public class Scenario4Test extends BaseTest {
             if (!repositoryClicked) {
                 driver.get("https://repository.library.northeastern.edu/");
             }
-
+            Thread.sleep(2000);
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step2_click_repository", "after");
             extentTest.log(Status.PASS, "Repository page opened");
+
+            // Switch to the newly opened tab so currentUrl reflects the visible page
+            for (String handle : driver.getWindowHandles()) {
+                if (!handle.equals(originalWindow)) {
+                    driver.switchTo().window(handle);
+                    break;
+                }
+            }
 
             js.executeScript("window.scrollTo(0, document.body.scrollHeight)");
             Thread.sleep(2000);
@@ -103,7 +111,7 @@ public class Scenario4Test extends BaseTest {
             if (!datasetSectionClicked) {
                 driver.get("https://repository.library.northeastern.edu/communities");
             }
-
+            Thread.sleep(2000);
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step3_click_dataset_section", "after");
             extentTest.log(Status.PASS, "Dataset section opened");
@@ -117,7 +125,7 @@ public class Scenario4Test extends BaseTest {
             Assert.assertTrue(datasetLinks.size() > 0, "No dataset items found");
 
             datasetLinks.get(0).click();
-
+            Thread.sleep(2000);
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
 
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step4_open_dataset_item", "after");
@@ -127,7 +135,7 @@ public class Scenario4Test extends BaseTest {
 
             Assert.assertTrue(driver.getPageSource().contains(wrongExpectedText),
                     "Negative scenario expected to fail");
-
+            Thread.sleep(2000);
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "step5_negative_assert", "after");
 
         } catch (AssertionError ae) {
