@@ -177,7 +177,8 @@ public class Scenario1Test extends BaseTest {
             extentTest.log(Status.PASS, "Selected 'Audit Transcript' type");
 
             PrintsPage printsPage = (PrintsPage) driver;
-            Path printPage = Paths.get("/Users/Sarthak/sqcm/Group2-selenium-automation-project/My_Transcript.pdf");
+            // Path printPage = Paths.get("/Users/Sarthak/sqcm/Group2-selenium-automation-project/My_Transcript.pdf");
+            Path printPage = Paths.get(System.getProperty("user.dir"), "My_Transcript.pdf");
             Pdf print = printsPage.print(new PrintOptions());
             Files.write(printPage, OutputType.BYTES.convertFromBase64Png(print.getContent()));   
             
