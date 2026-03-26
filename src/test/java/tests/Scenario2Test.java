@@ -62,7 +62,7 @@ public class Scenario2Test extends BaseTest {
 
             wait.until(ExpectedConditions.urlContains("northeastern.instructure.com"));
             Thread.sleep(2000);
-            System.out.println("  ✅ Step a: Logged in — " + driver.getCurrentUrl());
+            System.out.println("Step a: Logged in — " + driver.getCurrentUrl());
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "a_logged_in", "after");
             extentTest.log(Status.PASS, "Step a: Logged into Canvas successfully");
 
@@ -72,7 +72,7 @@ public class Scenario2Test extends BaseTest {
                     By.id("global_nav_calendar_link"))).click();
             wait.until(ExpectedConditions.urlContains("calendar"));
             Thread.sleep(2000);
-            System.out.println("  ✅ Step b: Opened Canvas Calendar");
+            System.out.println("Step b: Opened Canvas Calendar");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "b_calendar_opened", "after");
             extentTest.log(Status.PASS, "Step b: Canvas Calendar opened");
 
@@ -109,7 +109,7 @@ public class Scenario2Test extends BaseTest {
                 wait.until(ExpectedConditions.visibilityOfElementLocated(
                         By.id("edit_event_tabs")));
                 Thread.sleep(1000);
-                System.out.println("  ✅ Step c: Edit Event dialog opened");
+                System.out.println("Step c: Edit Event dialog opened");
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "c_dialog_opened_" + eventNum, "after");
                 extentTest.log(Status.PASS, "Step c: Dialog opened for Event " + eventNum);
@@ -125,7 +125,7 @@ public class Scenario2Test extends BaseTest {
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "e_date_" + eventNum, "before");
                 String pickerDate = date.trim();
-                System.out.println("  📅 Picker date: " + pickerDate);
+                System.out.println("Picker date: " + pickerDate);
 
                 // Open date picker by clicking "Choose a date" button
                 wait.until(ExpectedConditions.elementToBeClickable(
@@ -138,7 +138,7 @@ public class Scenario2Test extends BaseTest {
                                 " and normalize-space(text())='" + pickerDate + "']]"))).click();
                 Thread.sleep(1000);
 
-                System.out.println("  ✅ Step e: Date selected — " + pickerDate);
+                System.out.println("Step e: Date selected — " + pickerDate);
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "e_date_" + eventNum, "after");
                 extentTest.log(Status.PASS, "Step e: Date selected — " + pickerDate);
@@ -161,7 +161,7 @@ public class Scenario2Test extends BaseTest {
                 startField.sendKeys(Keys.ENTER);
                 Thread.sleep(800);
 
-                System.out.println("  ✅ Step f: Start time entered — " + time);
+                System.out.println("Step f: Start time entered — " + time);
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "f_start_time_" + eventNum, "after");
                 extentTest.log(Status.PASS, "Step f: Start time entered — " + time);
@@ -189,7 +189,7 @@ public class Scenario2Test extends BaseTest {
                 Thread.sleep(300);
                 endField.sendKeys(Keys.ENTER);
 
-                System.out.println("  ✅ Step g: End time entered — " + endTime);
+                System.out.println("Step g: End time entered — " + endTime);
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "g_end_time_" + eventNum, "after");
                 extentTest.log(Status.PASS, "Step g: End time entered — " + endTime);
@@ -202,7 +202,7 @@ public class Scenario2Test extends BaseTest {
                 locationField.clear();
                 locationField.sendKeys(location);
                 Thread.sleep(500);
-                System.out.println("  ✅ Step h: Location entered — " + location);
+                System.out.println("Step h: Location entered — " + location);
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "h_location_" + eventNum, "after");
                 extentTest.log(Status.PASS, "Step h: Location entered — " + location);
@@ -216,7 +216,7 @@ public class Scenario2Test extends BaseTest {
                 titleField.clear();
                 titleField.sendKeys(title);
                 Thread.sleep(500);
-                System.out.println("  ✅ Step i: Title entered — " + title);
+                System.out.println("Step i: Title entered — " + title);
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "i_title_" + eventNum, "after");
                 extentTest.log(Status.PASS, "Step i: Title entered — " + title);
@@ -233,7 +233,7 @@ public class Scenario2Test extends BaseTest {
                 wait.until(ExpectedConditions.invisibilityOfElementLocated(
                         By.id("edit_event_tabs")));
                 Thread.sleep(1500);
-                System.out.println("  ✅ Step j: Event " + eventNum + " submitted — " + title);
+                System.out.println("Step j: Event " + eventNum + " submitted — " + title);
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "j_submitted_" + eventNum, "after");
                 extentTest.log(Status.PASS,
@@ -251,7 +251,7 @@ public class Scenario2Test extends BaseTest {
                 Assert.assertTrue(eventVisible,
                         "FAIL: Event '" + title + "' NOT visible on calendar after submission");
 
-                System.out.println("  ✅ Step k: Event " + eventNum + " visible on calendar — PASSED");
+                System.out.println("Step k: Event " + eventNum + " visible on calendar — PASSED");
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO,
                         "k_verified_" + eventNum, "after");
                 extentTest.log(Status.PASS,
@@ -261,7 +261,7 @@ public class Scenario2Test extends BaseTest {
 
             extentTest.log(Status.PASS,
                     "Scenario 2 PASSED: Both events created and verified on Canvas Calendar");
-            System.out.println("\n  🎉 Scenario 2 PASSED: Both events added to Canvas Calendar");
+            System.out.println("\n Scenario 2 PASSED: Both events added to Canvas Calendar");
 
         } catch (Exception e) {
             extentTest.log(Status.FAIL, "Scenario 2 FAILED: " + e.getMessage());
@@ -287,7 +287,7 @@ public class Scenario2Test extends BaseTest {
                     By.xpath("//input[@type='submit'] | //button[@type='submit']"))).click();
 
             System.out.println("\n=====================================================");
-            System.out.println("  ⚠️  DUO 2FA: Please approve the push on your phone.");
+            System.out.println("      DUO 2FA: Please approve the push on your phone.");
             System.out.println("      Waiting up to 60 s for browser to redirect...");
             System.out.println("=====================================================\n");
 
@@ -296,35 +296,35 @@ public class Scenario2Test extends BaseTest {
                         .until(ExpectedConditions.elementToBeClickable(By.xpath(
                                 "//button[contains(text(),'Yes, this is my device')] | "
                                         + "//a[contains(text(),'Yes, this is my device')]"))).click();
-                System.out.println("  ✅ Clicked 'Yes, this is my device'");
+                System.out.println("Clicked 'Yes, this is my device'");
                 Thread.sleep(2000);
             } catch (Exception e) {
-                System.out.println("  ℹ️ No 'Is this your device' popup");
+                System.out.println("No 'Is this your device' popup");
             }
 
             try {
                 new WebDriverWait(driver, Duration.ofSeconds(15))
                         .until(ExpectedConditions.elementToBeClickable(By.xpath(
                                 "//input[@value='Yes'] | //button[contains(text(),'Yes')]"))).click();
-                System.out.println("  ✅ Clicked 'Yes' on Stay signed in");
+                System.out.println("Clicked 'Yes' on Stay signed in");
                 Thread.sleep(2000);
             } catch (Exception e) {
-                System.out.println("  ℹ️ No 'Stay signed in' popup");
+                System.out.println("No 'Stay signed in' popup");
             }
 
             new WebDriverWait(driver, Duration.ofSeconds(60))
                     .until(ExpectedConditions.urlContains("northeastern.instructure.com"));
             Thread.sleep(3000);
-            System.out.println("  ✅ Redirected to Canvas: " + driver.getCurrentUrl());
+            System.out.println("Redirected to Canvas: " + driver.getCurrentUrl());
 
         } catch (Exception e) {
-            System.out.println("  ℹ️ canvasLogin finished: " + e.getMessage());
+            System.out.println("canvasLogin finished: " + e.getMessage());
         }
     }
 
     @AfterClass
     public void generateReport() {
         ReportManager.flushReports();
-        System.out.println("  📊 Report generated: reports/TestReport.html");
+        System.out.println("Report generated: reports/TestReport.html");
     }
 }

@@ -25,10 +25,10 @@ public class ScreenshotHelper {
 
             File src = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
             Files.copy(src.toPath(), dest);
-            System.out.println("  📸 Screenshot: " + dest);
+            System.out.println("Screenshot: " + dest);
 
         } catch (IOException e) {
-            System.out.println("  ⚠️ Screenshot failed: " + e.getMessage());
+            System.out.println("Screenshot failed: " + e.getMessage());
         }
     }
 }

@@ -53,7 +53,7 @@ public class Scenario5Test extends BaseTest {
 
             // ── Step a cont: Click Resources tab ─────────────────────────────
             Thread.sleep(3000);
-            System.out.println("  🔍 Step a: Current URL = " + driver.getCurrentUrl());
+            System.out.println("Step a: Current URL = " + driver.getCurrentUrl());
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "a_click_resources", "before");
             WebElement resourcesTab = wait.until(ExpectedConditions.elementToBeClickable(
                     By.xpath("//*[self::a or self::span or self::button or self::li or self::div]" +
@@ -61,7 +61,7 @@ public class Scenario5Test extends BaseTest {
                             "'abcdefghijklmnopqrstuvwxyz'),'resources')]")
             ));
             resourcesTab.click();
-            System.out.println("  ✅ Step a: Clicked Resources tab");
+            System.out.println("Step a: Clicked Resources tab");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "a_click_resources", "after");
             extentTest.log(Status.PASS, "Step a: Clicked Resources tab");
 
@@ -72,7 +72,7 @@ public class Scenario5Test extends BaseTest {
             ));
             academics.click();
             Thread.sleep(1000);
-            System.out.println("  ✅ Step b: Clicked Academics");
+            System.out.println("Step b: Clicked Academics");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "b_click_academics", "after");
             extentTest.log(Status.PASS, "Step b: Clicked Academics, Classes & Registration");
 
@@ -83,7 +83,7 @@ public class Scenario5Test extends BaseTest {
             ));
             calLink.click();
             Thread.sleep(2000);
-            System.out.println("  ✅ Step c: Clicked Academic Calendar link");
+            System.out.println("Step c: Clicked Academic Calendar link");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "c_click_calendar_link", "after");
             extentTest.log(Status.PASS, "Step c: Clicked Academic Calendar link");
 
@@ -91,7 +91,7 @@ public class Scenario5Test extends BaseTest {
             if (driver.getWindowHandles().size() > 1) {
                 List<String> windows = new ArrayList<>(driver.getWindowHandles());
                 driver.switchTo().window(windows.get(windows.size() - 1));
-                System.out.println("  ✅ Step d: Switched to new tab");
+                System.out.println("Step d: Switched to new tab");
             }
 
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "d_registrar_page", "before");
@@ -104,11 +104,11 @@ public class Scenario5Test extends BaseTest {
             Thread.sleep(2000);
 
             if (!driver.getCurrentUrl().contains("academic-calendar")) {
-                System.out.println("  ℹ️ Navigating directly to calendar URL...");
+                System.out.println("Navigating directly to calendar URL...");
                 driver.get("https://registrar.northeastern.edu/article/academic-calendar/");
                 Thread.sleep(2000);
             }
-            System.out.println("  ✅ Step d: On Academic Calendar page");
+            System.out.println("Step d: On Academic Calendar page");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "d_registrar_page", "after");
             extentTest.log(Status.PASS, "Step d: Navigated to Academic Calendar page");
 
@@ -116,7 +116,7 @@ public class Scenario5Test extends BaseTest {
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "e_scroll_calendars", "before");
             js.executeScript("window.scrollBy(0, 600);");
             Thread.sleep(1000);
-            System.out.println("  ✅ Step e: Scrolled down");
+            System.out.println("Step e: Scrolled down");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "e_scroll_calendars", "after");
             extentTest.log(Status.PASS, "Step e: Scrolled down to calendar section");
 
@@ -148,7 +148,7 @@ public class Scenario5Test extends BaseTest {
             WebElement qtrRow = qtrNameCell.findElement(By.xpath("./ancestor::tr[1]"));
 
             // Debug: print this specific row's HTML
-            System.out.println("  🔍 QTR row HTML: " + qtrRow.getAttribute("innerHTML"));
+            System.out.println("QTR row HTML: " + qtrRow.getAttribute("innerHTML"));
 
             // The checkbox is in the sibling <td> with padding-left style (first cell in this row).
             // Find the first clickable element in that cell.
@@ -163,11 +163,11 @@ public class Scenario5Test extends BaseTest {
 
             if (!clickables.isEmpty()) {
                 js.executeScript("arguments[0].click();", clickables.get(0));
-                System.out.println("  ✅ Step f: Clicked QTR checkbox element");
+                System.out.println("Step f: Clicked QTR checkbox element");
             } else {
                 // If no child element, click the <td> itself
                 js.executeScript("arguments[0].click();", checkboxTd);
-                System.out.println("  ✅ Step f: Clicked QTR checkbox cell");
+                System.out.println("Step f: Clicked QTR checkbox cell");
             }
 
             Thread.sleep(2000);
@@ -179,7 +179,7 @@ public class Scenario5Test extends BaseTest {
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "g_scroll_to_calendars", "before");
             js.executeScript("window.scrollTo(0, document.body.scrollHeight / 2);");
             Thread.sleep(2000);
-            System.out.println("  ✅ Step g: Scrolled to middle of page");
+            System.out.println("Step g: Scrolled to middle of page");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "g_scroll_to_calendars", "after");
             extentTest.log(Status.PASS, "Step g: Scrolled to middle — unchecked QTR box visible");
 
@@ -187,7 +187,7 @@ public class Scenario5Test extends BaseTest {
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "h_scroll_bottom", "before");
             js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
             Thread.sleep(2000);
-            System.out.println("  ✅ Step h: Scrolled to bottom of page");
+            System.out.println("Step h: Scrolled to bottom of page");
             ScreenshotHelper.takeScreenshot(driver, SCENARIO, "h_scroll_bottom", "after");
             extentTest.log(Status.PASS, "Step h: Scrolled to bottom of page");
 
@@ -203,7 +203,7 @@ public class Scenario5Test extends BaseTest {
             try {
                 ScreenshotHelper.takeScreenshot(driver, SCENARIO, "failure", "after");
             } catch (Exception screenshotEx) {
-                System.out.println("  ⚠️ Could not take failure screenshot: " + screenshotEx.getMessage());
+                System.out.println("Could not take failure screenshot: " + screenshotEx.getMessage());
             }
             Assert.fail("Scenario 5 failed: " + e.getMessage());
         }
@@ -236,7 +236,7 @@ public class Scenario5Test extends BaseTest {
             signInBtn.click();
 
             System.out.println("\n=====================================================");
-            System.out.println("  ⚠️  DUO 2FA: Please approve push on your phone.");
+            System.out.println("      DUO 2FA: Please approve push on your phone.");
             System.out.println("      Waiting for browser to redirect...");
             System.out.println("=====================================================\n");
 
@@ -247,10 +247,10 @@ public class Scenario5Test extends BaseTest {
                                         "//a[contains(text(),'Yes, this is my device')]")
                         ));
                 myDeviceBtn.click();
-                System.out.println("  ✅ Clicked 'Yes, this is my device'");
+                System.out.println("Clicked 'Yes, this is my device'");
                 Thread.sleep(2000);
             } catch (Exception e) {
-                System.out.println("  ℹ️ No 'Is this your device' popup");
+                System.out.println("No 'Is this your device' popup");
             }
 
             try {
@@ -259,25 +259,25 @@ public class Scenario5Test extends BaseTest {
                                 By.xpath("//input[@value='Yes'] | //button[contains(text(),'Yes')]")
                         ));
                 staySignedIn.click();
-                System.out.println("  ✅ Clicked 'Yes' on Stay signed in");
+                System.out.println("Clicked 'Yes' on Stay signed in");
                 Thread.sleep(2000);
             } catch (Exception e) {
-                System.out.println("  ℹ️ No 'Stay signed in' popup");
+                System.out.println("No 'Stay signed in' popup");
             }
 
             new WebDriverWait(driver, Duration.ofSeconds(60))
                     .until(ExpectedConditions.urlContains("northeastern.edu"));
             Thread.sleep(3000);
-            System.out.println("  ✅ Redirected to: " + driver.getCurrentUrl());
+            System.out.println("Redirected to: " + driver.getCurrentUrl());
 
         } catch (Exception e) {
-            System.out.println("  ℹ️ Login skipped or already logged in: " + e.getMessage());
+            System.out.println("Login skipped or already logged in: " + e.getMessage());
         }
     }
 
     @AfterClass
     public void generateReport() {
         ReportManager.flushReports();
-        System.out.println("  📊 Report generated: reports/TestReport.html");
+        System.out.println("Report generated: reports/TestReport.html");
     }
 }

@@ -6,10 +6,12 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Pdf;
 import org.openqa.selenium.PrintsPage;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.print.PrintOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -181,6 +183,10 @@ public class Scenario1Test extends BaseTest {
             Path printPage = Paths.get(System.getProperty("user.dir"), "My_Transcript.pdf");
             Pdf print = printsPage.print(new PrintOptions());
             Files.write(printPage, OutputType.BYTES.convertFromBase64Png(print.getContent()));   
+            // driver.findElement(By.xpath("//a[@id='print']")).click();
+            // Thread.sleep(3000);
+            // // ((JavascriptExecutor) driver).executeScript("window.print();");
+            // new Actions(driver).sendKeys(Keys.ENTER).perform();
             
             Thread.sleep(2000);
 
